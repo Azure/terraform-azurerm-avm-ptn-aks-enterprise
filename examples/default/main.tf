@@ -1,19 +1,23 @@
 terraform {
-  required_version = "~> 1.5"
+  required_version = ">= 1.3.0"
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 3.74"
+      version = ">= 3.7.0, < 4.0.0"
     }
     random = {
       source  = "hashicorp/random"
-      version = "~> 3.5"
+      version = ">= 3.5.0, < 4.0.0"
     }
   }
 }
 
 provider "azurerm" {
-  features {}
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
 }
 
 
@@ -21,7 +25,7 @@ provider "azurerm" {
 # This allows us to randomize the region for the resource group.
 module "regions" {
   source  = "Azure/regions/azurerm"
-  version = "~> 0.3"
+  version = "~> 0.8"
 }
 
 # This allows us to randomize the region for the resource group.
@@ -39,8 +43,14 @@ module "naming" {
 
 # This is required for resource modules
 resource "azurerm_resource_group" "this" {
-  location = module.regions.regions[random_integer.region_index.result].name
+  location = module.regions.regions_by_name.eastus.name
   name     = module.naming.resource_group.name_unique
+}
+
+resource "azurerm_user_assigned_identity" "this" {
+  location            = azurerm_resource_group.this.location
+  name                = "uami-${var.kubernetes_cluster_name}"
+  resource_group_name = azurerm_resource_group.this.name
 }
 
 # This is the module call
@@ -48,12 +58,11 @@ resource "azurerm_resource_group" "this" {
 # Leaving location as `null` will cause the module to use the resource group location
 # with a data source.
 module "test" {
-  source = "../../"
-  # source             = "Azure/avm-<res/ptn>-<name>/azurerm"
-  # ...
-  location            = azurerm_resource_group.this.location
-  name                = "TODO" # TODO update with module.naming.<RESOURCE_TYPE>.name_unique
-  resource_group_name = azurerm_resource_group.this.name
-
-  enable_telemetry = var.enable_telemetry # see variables.tf
+  source                                      = "../../"
+  kubernetes_version                          = "1.28"
+  enable_telemetry                            = var.enable_telemetry # see variables.tf
+  name                                        = module.naming.kubernetes_cluster.name_unique
+  resource_group_name                         = azurerm_resource_group.this.name
+  user_assigned_managed_identity_resource_ids = [azurerm_user_assigned_identity.this.id]
+  location                                    = module.regions.regions_by_name.eastus.name
 }
