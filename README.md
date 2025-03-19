@@ -25,11 +25,11 @@ Major version Zero (0.y.z) is for initial development. Anything MAY change at an
 
 The following requirements are needed by this module:
 
-- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.3.0)
+- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.9, < 2.0)
 
-- <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (>= 1.4.0, < 2.0)
+- <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (>= 2.0.1, < 3.0)
 
-- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 3.86.0, <4.0)
+- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 4.0.0, < 5.0.0)
 
 - <a name="requirement_local"></a> [local](#requirement\_local) (>=2.4.1, < 3.0)
 
@@ -132,7 +132,7 @@ Default: `"10.42.2.0/24"`
 
 ### <a name="input_kubernetes_version"></a> [kubernetes\_version](#input\_kubernetes\_version)
 
-Description: Specify which Kubernetes release to use. Specify only minor version, such as '1.28'.
+Description: Specify which Kubernetes release to use. Specify only minor version, such as '1.30'.
 
 Type: `string`
 
@@ -223,7 +223,7 @@ Example input:
     workload = {
       name                 = "workload"
       vm_size              = "Standard_D2d_v5"
-      orchestrator_version = "1.28"
+      orchestrator_version = "1.30"
       max_count            = 20
       min_count            = 2
       os_sku               = "Ubuntu"
@@ -232,7 +232,7 @@ Example input:
     ingress = {
       name                 = "ingress"
       vm_size              = "Standard_D2d_v5"
-      orchestrator_version = "1.28"
+      orchestrator_version = "1.30"
       max_count            = 4
       min_count            = 2
       os_sku               = "Ubuntu"
@@ -263,7 +263,7 @@ Default: `{}`
 
 ### <a name="input_orchestrator_version"></a> [orchestrator\_version](#input\_orchestrator\_version)
 
-Description: (Optional) Specify which Kubernetes release to use. Specify only minor version, such as '1.28'.
+Description: (Optional) Specify which Kubernetes release to use. Specify only minor version, such as '1.30'.
 
 Type: `string`
 

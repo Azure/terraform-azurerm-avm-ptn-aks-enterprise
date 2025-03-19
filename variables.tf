@@ -52,7 +52,7 @@ variable "firewall_cidr" {
 variable "kubernetes_version" {
   type        = string
   default     = null
-  description = "Specify which Kubernetes release to use. Specify only minor version, such as '1.28'."
+  description = "Specify which Kubernetes release to use. Specify only minor version, such as '1.30'."
 
   validation {
     condition     = var.kubernetes_version == null || try(can(regex("^[0-9]+\\.[0-9]+$", var.kubernetes_version)), false)
@@ -152,7 +152,7 @@ Example input:
     workload = {
       name                 = "workload"
       vm_size              = "Standard_D2d_v5"
-      orchestrator_version = "1.28"
+      orchestrator_version = "1.30"
       max_count            = 20
       min_count            = 2
       os_sku               = "Ubuntu"
@@ -161,7 +161,7 @@ Example input:
     ingress = {
       name                 = "ingress"
       vm_size              = "Standard_D2d_v5"
-      orchestrator_version = "1.28"
+      orchestrator_version = "1.30"
       max_count            = 4
       min_count            = 2
       os_sku               = "Ubuntu"
@@ -176,7 +176,7 @@ EOT
 variable "orchestrator_version" {
   type        = string
   default     = null
-  description = "(Optional) Specify which Kubernetes release to use. Specify only minor version, such as '1.28'."
+  description = "(Optional) Specify which Kubernetes release to use. Specify only minor version, such as '1.30'."
 
   validation {
     condition     = var.orchestrator_version == null || try(can(regex("^[0-9]+\\.[0-9]+$", var.orchestrator_version)), false)

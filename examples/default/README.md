@@ -5,11 +5,11 @@ This deploys the module in its simplest form.
 
 ```hcl
 terraform {
-  required_version = ">= 1.3.0"
+  required_version = ">= 1.9, < 2.0"
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = ">= 3.7.0, < 4.0.0"
+      version = ">= 4.0.0, < 5.0.0"
     }
     random = {
       source  = "hashicorp/random"
@@ -65,7 +65,7 @@ resource "azurerm_user_assigned_identity" "this" {
 # with a data source.
 module "test" {
   source                                      = "../../"
-  kubernetes_version                          = "1.28"
+  kubernetes_version                          = "1.30"
   enable_telemetry                            = var.enable_telemetry # see variables.tf
   name                                        = module.naming.kubernetes_cluster.name_unique
   resource_group_name                         = azurerm_resource_group.this.name
@@ -79,9 +79,9 @@ module "test" {
 
 The following requirements are needed by this module:
 
-- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.3.0)
+- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.9, < 2.0)
 
-- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 3.7.0, < 4.0.0)
+- <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 4.0.0, < 5.0.0)
 
 - <a name="requirement_random"></a> [random](#requirement\_random) (>= 3.5.0, < 4.0.0)
 
