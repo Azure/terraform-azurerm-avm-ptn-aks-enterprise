@@ -31,8 +31,6 @@ The following requirements are needed by this module:
 
 - <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) (>= 4.0.0, < 5.0.0)
 
-- <a name="requirement_local"></a> [local](#requirement\_local) (>=2.4.1, < 3.0)
-
 - <a name="requirement_modtm"></a> [modtm](#requirement\_modtm) (~> 0.3.0)
 
 - <a name="requirement_random"></a> [random](#requirement\_random) (~> 3.5)
