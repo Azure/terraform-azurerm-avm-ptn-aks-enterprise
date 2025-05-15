@@ -59,7 +59,7 @@ resource "azurerm_kubernetes_cluster" "this" {
     os_sku                  = "Ubuntu"
     tags                    = merge(var.tags, var.agents_tags)
     vnet_subnet_id          = azurerm_subnet.aks.id
-    zones                   = try([for zone in local.regions_by_name_or_display_name[var.location].zones : zone], null)
+    zones                   = local.default_node_pool_available_zones
 
     upgrade_settings {
       max_surge = "10%"
@@ -244,14 +244,6 @@ resource "azurerm_kubernetes_cluster_node_pool" "this" {
   }
 }
 
-# These resources allow the use of consistent local data files, and semver versioning
-data "local_file" "compute_provider" {
-  filename = "${path.module}/data/microsoft.compute_resourceTypes.json"
-}
-
-data "local_file" "locations" {
-  filename = "${path.module}/data/locations.json"
-}
 
 resource "azurerm_virtual_network" "this" {
   address_space       = [var.virtual_network_address_space]
@@ -433,4 +425,16 @@ resource "azurerm_subnet_route_table_association" "this" {
     azurerm_firewall_application_rule_collection.this,
     azurerm_firewall_network_rule_collection.this,
   ]
+}
+
+# Data source for the current subscription
+data "azurerm_subscription" "current" {}
+
+data "azapi_resource_list" "example" {
+  parent_id = data.azurerm_subscription.current.id
+  type      = "Microsoft.Compute/Skus@2021-07-01"
+  query_parameters = {
+    "$filter" = [format("location eq '%s'", var.location)]
+  }
+  response_export_values = ["*"]
 }
