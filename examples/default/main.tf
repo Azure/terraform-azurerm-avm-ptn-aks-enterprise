@@ -43,7 +43,7 @@ module "naming" {
 
 # This is required for resource modules
 resource "azurerm_resource_group" "this" {
-  location = module.regions.regions_by_name.westus2.name
+  location = module.regions.regions_by_name.eastus2.name
   name     = module.naming.resource_group.name_unique
 }
 
@@ -60,7 +60,7 @@ resource "azurerm_user_assigned_identity" "this" {
 module "test" {
   source = "../../"
 
-  location                                    = module.regions.regions_by_name.eastus.name
+  location                                    = module.regions.regions_by_name.eastus2.name
   name                                        = module.naming.kubernetes_cluster.name_unique
   resource_group_name                         = azurerm_resource_group.this.name
   enable_telemetry                            = var.enable_telemetry # see variables.tf
