@@ -146,9 +146,10 @@ resource "azurerm_log_analytics_workspace" "this" {
 resource "azurerm_log_analytics_workspace_table" "this" {
   for_each = toset(local.log_analytics_tables)
 
-  name         = each.value
-  workspace_id = azurerm_log_analytics_workspace.this.id
-  plan         = "Basic"
+  name                    = each.value
+  workspace_id            = azurerm_log_analytics_workspace.this.id
+  plan                    = "Basic"
+  total_retention_in_days = 30
 }
 
 resource "azurerm_monitor_diagnostic_setting" "aks" {
