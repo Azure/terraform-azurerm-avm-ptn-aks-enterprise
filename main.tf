@@ -49,7 +49,6 @@ resource "azurerm_kubernetes_cluster" "this" {
 
   default_node_pool {
     name                    = "agentpool"
-    vm_size                 = "Standard_D16ds_v5"
     auto_scaling_enabled    = true
     host_encryption_enabled = true
     max_count               = 5
@@ -58,6 +57,7 @@ resource "azurerm_kubernetes_cluster" "this" {
     orchestrator_version    = var.orchestrator_version
     os_sku                  = "Ubuntu"
     tags                    = merge(var.tags, var.agents_tags)
+    vm_size                 = "Standard_D16ds_v5"
     vnet_subnet_id          = azurerm_subnet.aks.id
     zones                   = local.default_node_pool_available_zones
 
@@ -121,13 +121,13 @@ resource "terraform_data" "kubernetes_version_keeper" {
 }
 
 resource "azapi_update_resource" "aks_cluster_post_create" {
-  type = "Microsoft.ContainerService/managedClusters@2024-02-01"
+  resource_id = azurerm_kubernetes_cluster.this.id
+  type        = "Microsoft.ContainerService/managedClusters@2024-02-01"
   body = {
     properties = {
       kubernetesVersion = var.kubernetes_version
     }
   }
-  resource_id = azurerm_kubernetes_cluster.this.id
 
   lifecycle {
     ignore_changes       = all
@@ -225,13 +225,13 @@ resource "azurerm_kubernetes_cluster_node_pool" "this" {
 
   kubernetes_cluster_id = azurerm_kubernetes_cluster.this.id
   name                  = each.value.name
-  vm_size               = each.value.vm_size
   auto_scaling_enabled  = true
   max_count             = each.value.max_count
   min_count             = each.value.min_count
   orchestrator_version  = each.value.orchestrator_version
   os_sku                = each.value.os_sku
   tags                  = var.tags
+  vm_size               = each.value.vm_size
   vnet_subnet_id        = azurerm_subnet.aks.id
   zones                 = each.value.zone == "" ? null : [each.value.zone]
 
@@ -247,10 +247,10 @@ resource "azurerm_kubernetes_cluster_node_pool" "this" {
 
 
 resource "azurerm_virtual_network" "this" {
-  address_space       = [var.virtual_network_address_space]
   location            = var.location
   name                = "vnet-${random_string.acr_suffix.result}"
   resource_group_name = var.resource_group_name
+  address_space       = [var.virtual_network_address_space]
   tags                = var.tags
 }
 
