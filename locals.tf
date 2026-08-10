@@ -1,4 +1,3 @@
-
 locals {
   default_node_pool_available_zones = setsubtract(local.zones, local.restricted_zones)
   filtered_vms = [
@@ -49,6 +48,7 @@ locals {
     ]
   ])
 }
+
 locals {
   log_analytics_tables = ["AKSAudit", "AKSAuditAdmin", "AKSControlPlane", "ContainerLogV2"]
 }
