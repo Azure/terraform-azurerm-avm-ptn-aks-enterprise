@@ -1,4 +1,3 @@
-
 resource "random_string" "acr_suffix" {
   length  = 8
   numeric = true
@@ -65,9 +64,11 @@ resource "azurerm_kubernetes_cluster" "this" {
       max_surge = "10%"
     }
   }
+
   auto_scaler_profile {
     balance_similar_node_groups = true
   }
+
   dynamic "azure_active_directory_role_based_access_control" {
     for_each = var.rbac_aad_admin_group_object_ids != null || var.rbac_aad_azure_rbac_enabled != null || var.rbac_aad_tenant_id != null ? [1] : []
 
@@ -77,15 +78,18 @@ resource "azurerm_kubernetes_cluster" "this" {
       tenant_id              = var.rbac_aad_tenant_id
     }
   }
+
   ## Resources that only support UserAssigned
   identity {
     type         = "UserAssigned"
     identity_ids = length(var.user_assigned_managed_identity_resource_ids) > 0 ? var.user_assigned_managed_identity_resource_ids : azurerm_user_assigned_identity.aks[*].id
   }
+
   monitor_metrics {
     annotations_allowed = try(var.monitor_metrics.annotations_allowed, null)
     labels_allowed      = try(var.monitor_metrics.labels_allowed, null)
   }
+
   network_profile {
     network_plugin      = "azure"
     load_balancer_sku   = "standard"
@@ -94,18 +98,18 @@ resource "azurerm_kubernetes_cluster" "this" {
     outbound_type       = "userDefinedRouting"
     pod_cidr            = var.pod_cidr
   }
+
   oms_agent {
     log_analytics_workspace_id      = azurerm_log_analytics_workspace.this.id
     msi_auth_for_monitoring_enabled = true
   }
-
-  depends_on = [azurerm_subnet_route_table_association.this]
 
   lifecycle {
     ignore_changes = [
       kubernetes_version
     ]
   }
+  depends_on = [azurerm_subnet_route_table_association.this]
 }
 
 # The following terraform_data is used to trigger the update of the AKS cluster when the kubernetes_version changes
@@ -204,6 +208,7 @@ resource "azurerm_monitor_diagnostic_setting" "aks" {
   enabled_log {
     category = "csi-snapshot-controller"
   }
+
   metric {
     category = "AllMetrics"
   }
@@ -218,7 +223,6 @@ resource "azurerm_management_lock" "this" {
   scope      = azurerm_kubernetes_cluster.this.id
   notes      = var.lock.kind == "CanNotDelete" ? "Cannot delete the resource or its child resources." : "Cannot delete or modify the resource or its child resources."
 }
-
 
 resource "azurerm_kubernetes_cluster_node_pool" "this" {
   for_each = tomap({
@@ -237,16 +241,14 @@ resource "azurerm_kubernetes_cluster_node_pool" "this" {
   vnet_subnet_id        = azurerm_subnet.aks.id
   zones                 = each.value.zone == "" ? null : [each.value.zone]
 
-  depends_on = [azapi_update_resource.aks_cluster_post_create]
-
   lifecycle {
     precondition {
       condition     = can(regex("^[a-z][a-z0-9]{0,11}$", each.value.name))
       error_message = "The name must begin with a lowercase letter, contain only lowercase letters and numbers, and be between 1 and 12 characters in length."
     }
   }
+  depends_on = [azapi_update_resource.aks_cluster_post_create]
 }
-
 
 resource "azurerm_virtual_network" "this" {
   location            = var.location
@@ -257,19 +259,18 @@ resource "azurerm_virtual_network" "this" {
 }
 
 resource "azurerm_subnet" "aks" {
-  address_prefixes     = [var.node_cidr]
   name                 = "aks-subnet"
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.this.name
+  address_prefixes     = [var.node_cidr]
 }
 
 resource "azurerm_subnet" "firewall" {
-  address_prefixes     = [var.firewall_cidr]
   name                 = "AzureFirewallSubnet"
   resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.this.name
+  address_prefixes     = [var.firewall_cidr]
 }
-
 
 resource "azurerm_public_ip" "this" {
   allocation_method   = "Static"
@@ -300,7 +301,6 @@ resource "azurerm_route_table" "this" {
   location            = var.location
   name                = "rt-${random_string.acr_suffix.result}"
   resource_group_name = var.resource_group_name
-  tags                = var.tags
 
   route {
     address_prefix         = "0.0.0.0/0"
@@ -313,8 +313,8 @@ resource "azurerm_route_table" "this" {
     name           = "internal"
     next_hop_type  = "Internet"
   }
+  tags = var.tags
 }
-
 
 resource "azurerm_firewall_network_rule_collection" "this" {
   action              = "Allow"
@@ -403,7 +403,6 @@ resource "azurerm_firewall_network_rule_collection" "this" {
   }
 }
 
-
 resource "azurerm_firewall_application_rule_collection" "this" {
   action              = "Allow"
   azure_firewall_name = azurerm_firewall.this.name
@@ -435,9 +434,9 @@ data "azurerm_subscription" "current" {}
 
 data "azapi_resource_list" "example" {
   parent_id = data.azurerm_subscription.current.id
-  type      = "Microsoft.Compute/Skus@2021-07-01"
   query_parameters = {
     "$filter" = [format("location eq '%s'", var.location)]
   }
+  type                   = "Microsoft.Compute/Skus@2021-07-01"
   response_export_values = ["*"]
 }
