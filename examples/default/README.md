@@ -52,7 +52,7 @@ module "test" {
   location                                    = azurerm_resource_group.this.location
   name                                        = module.naming.kubernetes_cluster.name_unique
   resource_group_name                         = azurerm_resource_group.this.name
-  enable_telemetry                            = false # see variables.tf
+  enable_telemetry                            = var.enable_telemetry # see variables.tf
   kubernetes_version                          = "1.30"
   user_assigned_managed_identity_resource_ids = [azurerm_user_assigned_identity.this.id]
 }
@@ -91,7 +91,7 @@ If it is set to false, then no telemetry will be collected.
 
 Type: `bool`
 
-Default: `true`
+Default: `false`
 
 ### <a name="input_kubernetes_cluster_name"></a> [kubernetes\_cluster\_name](#input\_kubernetes\_cluster\_name)
 
